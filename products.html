@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products - SwiftCart</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+</head>
+
+<body class="bg-gray-100">
+
+  <!-- ================= NAVBAR (Same as index) ================= -->
+  <nav class="bg-white shadow-md fixed w-full z-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+
+        <div class="text-2xl font-bold text-indigo-600">
+          SwiftCart
+        </div>
+
+        <div class="hidden md:flex space-x-8 font-medium">
+          <a href="index.html" class="text-gray-700 hover:text-indigo-600">Home</a>
+          <a href="products.html" class="text-indigo-600 font-semibold">Products</a>
+          <a href="#" class="text-gray-700 hover:text-indigo-600">About</a>
+          <a href="#" class="text-gray-700 hover:text-indigo-600">Contact</a>
+        </div>
+
+        <div class="relative cursor-pointer">
+          <i class="fa-solid fa-cart-shopping text-xl text-gray-700"></i>
+          <span id="cart-count"
+            class="absolute -top-2 -right-3 bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
+            0
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-20"></div>
+
+  <!-- ================= PAGE TITLE ================= -->
+  <section class="text-center mb-10">
+    <h1 class="text-3xl font-bold">Our Products</h1>
+  </section>
+
+  <!-- ================= CATEGORY BUTTONS ================= -->
+  <div class="max-w-7xl mx-auto px-4 mb-10">
+    <div id="category-container"
+      class="flex flex-wrap justify-center gap-4">
+      <!-- Categories will load here -->
+    </div>
+  </div>
+
+  <!-- ================= LOADING SPINNER ================= -->
+  <div id="loading" class="text-center hidden">
+    <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i>
+  </div>
+
+  <!-- ================= PRODUCT GRID ================= -->
+  <div class="max-w-7xl mx-auto px-4 pb-20">
+    <div id="product-container"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <!-- Products will load here -->
+    </div>
+  </div>
+
+  <script src="js/products.js"></script>
+</body>
+</html>

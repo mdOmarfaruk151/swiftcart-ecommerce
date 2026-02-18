@@ -6,6 +6,7 @@ const categoryContainer = document.getElementById("category-container");
 const loading = document.getElementById("loading");
 
 const BASE_URL = "https://fakestoreapi.com/products";
+const productCache = new Map();
 
 async function fetchJson(url) {
   const res = await fetch(url);
@@ -50,6 +51,8 @@ function displayProducts(products) {
   productContainer.innerHTML = "";
 
   products.forEach((product) => {
+    productCache.set(Number(product.id), product);
+
     const card = document.createElement("div");
     card.className = "bg-white rounded-xl shadow hover:shadow-lg transition p-4";
     card.innerHTML = `
@@ -64,7 +67,7 @@ function displayProducts(products) {
         <button class="details-btn flex-1 border border-gray-300 py-2 rounded hover:bg-gray-200" data-id="${product.id}">
           Details
         </button>
-        <button class="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+        <button class="add-cart-btn flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700" data-id="${product.id}">
           Add
         </button>
       </div>
@@ -75,21 +78,37 @@ function displayProducts(products) {
 
 productContainer.addEventListener("click", (e) => {
   const detailsBtn = e.target.closest(".details-btn");
-  if (!detailsBtn) return;
-  const id = detailsBtn.getAttribute("data-id");
-  if (id) fetchSingleProduct(id);
+  if (detailsBtn) {
+    const id = detailsBtn.getAttribute("data-id");
+    if (id) fetchSingleProduct(id);
+    return;
+  }
+
+  const addBtn = e.target.closest(".add-cart-btn");
+  if (!addBtn) return;
+
+  const id = Number(addBtn.getAttribute("data-id"));
+  const product = productCache.get(id);
+  if (product && window.CartAPI) {
+    window.CartAPI.addToCart(product);
+  }
 });
 
 async function fetchSingleProduct(id) {
   try {
+    showLoading();
     const product = await fetchJson(`${BASE_URL}/${id}`);
     showModal(product);
   } catch (error) {
     console.error(error);
+  } finally {
+    hideLoading();
   }
 }
 
 function showModal(product) {
+  productCache.set(Number(product.id), product);
+
   modalContent.innerHTML = `
     <img src="${product.image}" class="h-60 mx-auto object-contain mb-4" />
     <h2 class="text-xl font-bold mb-2">${product.title}</h2>
@@ -98,7 +117,7 @@ function showModal(product) {
       <span class="text-lg font-bold">$${product.price}</span>
       <span class="text-yellow-500">&#9733; ${product.rating?.rate ?? "N/A"}</span>
     </div>
-    <button class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+    <button id="modal-add-to-cart" data-id="${product.id}" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
       Add to Cart
     </button>
   `;
@@ -115,6 +134,18 @@ modal.addEventListener("click", (e) => {
   if (e.target !== modal) return;
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+});
+
+modalContent.addEventListener("click", (e) => {
+  const addBtn = e.target.closest("#modal-add-to-cart");
+  if (!addBtn) return;
+
+  const id = Number(addBtn.getAttribute("data-id"));
+  const product = productCache.get(id);
+
+  if (product && window.CartAPI) {
+    window.CartAPI.addToCart(product);
+  }
 });
 
 async function loadCategories() {

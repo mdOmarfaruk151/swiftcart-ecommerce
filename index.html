@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -31,21 +31,21 @@
         <div class="hidden md:flex space-x-8 font-medium">
           <a href="index.html" class="text-gray-700 hover:text-indigo-600">Home</a>
           <a href="products.html" class="text-gray-700 hover:text-indigo-600">Products</a>
-          <a href="#" class="text-gray-700 hover:text-indigo-600">About</a>
-          <a href="#" class="text-gray-700 hover:text-indigo-600">Contact</a>
+          <a href="about.html" class="text-gray-700 hover:text-indigo-600">About</a>
+          <a href="contact.html" class="text-gray-700 hover:text-indigo-600">Contact</a>
         </div>
 
         <!-- Cart + Mobile Menu Button -->
         <div class="flex items-center space-x-4">
 
           <!-- Cart -->
-          <div class="relative cursor-pointer">
+          <button id="cart-btn" type="button" class="relative cursor-pointer" aria-label="Open cart">
             <i class="fa-solid fa-cart-shopping text-xl text-gray-700"></i>
             <span id="cart-count"
               class="absolute -top-2 -right-3 bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
               0
             </span>
-          </div>
+          </button>
 
           <!-- Hamburger -->
           <button id="menu-btn" class="md:hidden text-gray-700 text-xl">
@@ -61,8 +61,8 @@
     <div id="mobile-menu" class="hidden md:hidden bg-white px-4 pb-4">
       <a href="index.html" class="block py-2 text-gray-700 hover:text-indigo-600">Home</a>
       <a href="products.html" class="block py-2 text-gray-700 hover:text-indigo-600">Products</a>
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">About</a>
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Contact</a>
+      <a href="about.html" class="block py-2 text-gray-700 hover:text-indigo-600">About</a>
+      <a href="contact.html" class="block py-2 text-gray-700 hover:text-indigo-600">Contact</a>
     </div>
 
   </nav>
@@ -164,156 +164,98 @@
 
     <h2 class="text-3xl font-bold mb-10">Trending Now</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div id="trending-loading" class="text-center mb-6 hidden">
+      <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-600"></i>
+    </div>
 
-      <!-- Card -->
-      <div class="bg-gray-100 rounded-xl shadow p-4">
-        <img src="https://fjallraven.com.au/cdn/shop/products/Foldsack_No_1_24210-042_A_MAIN_FJR_1100x.png?v=1752639898"
-             alt="Fjallraven backpack"
-             onerror="this.onerror=null;this.src='assets/images/banner-image.png';"
-             class="h-60 mx-auto object-contain mb-4" />
-
-        <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">
-          Men's Clothing
-        </span>
-
-        <h3 class="font-semibold mt-3 truncate">
-          Fjallraven - Foldsack No. 1 Backpack
-        </h3>
-
-        <div class="flex justify-between items-center mt-2">
-          <span class="font-bold">$109.95</span>
-          <span class="text-yellow-500 text-sm">
-            &#9733; 3.9
-          </span>
-        </div>
-
-        <div class="flex gap-2 mt-4">
-          <button class="flex-1 border border-gray-300 py-2 rounded hover:bg-gray-200">
-            Details
-          </button>
-          <button class="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
-            Add
-          </button>
-        </div>
-      </div>
-
-      <!-- Duplicate this card 2 more times for layout practice -->
-      
-      <div class="bg-gray-100 rounded-xl shadow p-4">
-        <img src="https://www.theideaprint.com/wp-content/uploads/2020/02/IMPERIAL-FIT_00580_heather_denim_A.png"
-             alt="Premium slim fit t-shirt"
-             onerror="this.onerror=null;this.src='assets/images/banner-image.png';"
-             class="h-60 mx-auto object-contain mb-4" />
-        <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">
-          Men's Clothing
-        </span>
-        <h3 class="font-semibold mt-3 truncate">
-          Mens Casual Premium Slim Fit T-Shirts
-        </h3>
-        <div class="flex justify-between items-center mt-2">
-          <span class="font-bold">$22.3</span>
-          <span class="text-yellow-500 text-sm">&#9733; 4.1</span>
-        </div>
-        <div class="flex gap-2 mt-4">
-          <button class="flex-1 border py-2 rounded">Details</button>
-          <button class="flex-1 bg-indigo-600 text-white py-2 rounded">
-            Add
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-gray-100 rounded-xl shadow p-4">
-        <img src="https://www.kindpng.com/picc/m/174-1747429_bomber-jacket-for-men-png-clipart-lightweight-cotton.png"
-             alt="Mens cotton jacket"
-             onerror="this.onerror=null;this.src='assets/images/banner-image.png';"
-             class="h-60 mx-auto object-contain mb-4" />
-        <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">
-          Men's Clothing
-        </span>
-        <h3 class="font-semibold mt-3 truncate">
-          Mens Cotton Jacket
-        </h3>
-        <div class="flex justify-between items-center mt-2">
-          <span class="font-bold">$55.99</span>
-          <span class="text-yellow-500 text-sm">&#9733; 4.7</span>
-        </div>
-        <div class="flex gap-2 mt-4">
-          <button class="flex-1 border py-2 rounded">Details</button>
-          <button class="flex-1 bg-indigo-600 text-white py-2 rounded">
-            Add
-          </button>
-        </div>
-      </div>
-
+    <div id="trending-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Trending products will load from API -->
     </div>
   </div>
 </section>
 
+<!-- ================= HOME PRODUCT MODAL ================= -->
+<div id="home-product-modal"
+  class="hidden fixed inset-0 bg-black/50 items-center justify-center z-[60] p-4">
+  <div class="bg-white w-full max-w-xl rounded-xl shadow-lg p-6 relative">
+    <button id="home-close-modal"
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+      aria-label="Close product modal">
+      <i class="fa-solid fa-xmark text-xl"></i>
+    </button>
+    <div id="home-modal-content"></div>
+  </div>
+</div>
+
 <!-- ================= FOOTER ================= -->
-<footer class="bg-gray-900 text-gray-300 pt-12">
+<footer class="mt-12 bg-[#1e2a3f] text-gray-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-10">
+      <div>
+        <h3 class="text-3xl sm:text-4xl font-bold text-indigo-400 mb-4">SwiftCart</h3>
+        <p class="text-sm sm:text-base leading-relaxed text-gray-400 max-w-sm">
+          Your one-stop shop for all your fashion and lifestyle needs. Quality products,
+          fast delivery, and excellent support.
+        </p>
+      </div>
 
-  <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h4 class="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-400 mb-4">Quick Links</h4>
+        <ul class="space-y-2 text-base sm:text-lg">
+          <li><a href="index.html" class="hover:text-white transition">Home</a></li>
+          <li><a href="products.html" class="hover:text-white transition">Products</a></li>
+          <li><a href="about.html" class="hover:text-white transition">About</a></li>
+          <li><a href="contact.html" class="hover:text-white transition">Contact</a></li>
+        </ul>
+      </div>
 
-    <!-- Brand -->
-    <div>
-      <h3 class="text-xl font-bold text-white mb-4">SwiftCart</h3>
-      <p class="text-sm">
-        Your one-stop shop for fashion and electronics.
-        Quality products, fast delivery, excellent support.
-      </p>
-    </div>
+      <div>
+        <h4 class="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-400 mb-4">Support</h4>
+        <ul class="space-y-2 text-base sm:text-lg">
+          <li><a href="faq.html" class="hover:text-white transition">FAQ</a></li>
+          <li><a href="shipping.html" class="hover:text-white transition">Shipping</a></li>
+          <li><a href="returns.html" class="hover:text-white transition">Returns</a></li>
+          <li><a href="privacy-policy.html" class="hover:text-white transition">Privacy Policy</a></li>
+        </ul>
+      </div>
 
-    <!-- Quick Links -->
-    <div>
-      <h4 class="text-white font-semibold mb-4">Quick Links</h4>
-      <ul class="space-y-2 text-sm">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Products</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-
-    <!-- Support -->
-    <div>
-      <h4 class="text-white font-semibold mb-4">Support</h4>
-      <ul class="space-y-2 text-sm">
-        <li><a href="#">FAQ</a></li>
-        <li><a href="#">Shipping</a></li>
-        <li><a href="#">Returns</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-      </ul>
-    </div>
-
-    <!-- Newsletter -->
-    <div>
-      <h4 class="text-white font-semibold mb-4">
-        Subscribe to our Newsletter
-      </h4>
-      <div class="flex">
-        <input type="email"
-          placeholder="Enter your email"
-          class="w-full px-3 py-2 rounded-l bg-gray-800 border border-gray-700 focus:outline-none">
-        <button
-          class="bg-indigo-600 px-4 py-2 rounded-r hover:bg-indigo-700">
-          Subscribe
-        </button>
+      <div>
+        <h4 class="text-xs sm:text-sm font-semibold tracking-wider uppercase text-gray-400 mb-4">Subscribe to Our Newsletter</h4>
+        <p class="text-sm sm:text-base text-gray-400 leading-relaxed mb-4">
+          The latest news, articles, and resources, sent to your inbox weekly.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            class="w-full sm:w-auto flex-1 px-4 py-3 rounded-xl bg-white text-gray-700 placeholder-gray-400 focus:outline-none"
+          />
+          <button class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+            Subscribe
+          </button>
+        </div>
       </div>
     </div>
 
+    <div class="mt-10 pt-6 border-t border-gray-600/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-gray-400 text-sm sm:text-base text-center sm:text-left">&copy; 2025 SwiftCart, Inc. All rights reserved.</p>
+      <div class="flex items-center gap-5 text-xl sm:text-2xl text-gray-400">
+        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" class="hover:text-white transition"><i class="fa-regular fa-envelope"></i></a>
+      </div>
+    </div>
   </div>
-
-  <div class="border-t border-gray-800 mt-10 py-4 text-center text-sm">
-    &copy; 2025 SwiftCart. All rights reserved.
-  </div>
-
 </footer>
 
 
 
   <!-- JS -->
+  <script src="js/cart.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
+
 

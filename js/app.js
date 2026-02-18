@@ -10,6 +10,8 @@ const homeProductModal = document.getElementById("home-product-modal");
 const homeCloseModalBtn = document.getElementById("home-close-modal");
 const homeModalContent = document.getElementById("home-modal-content");
 const trendingCache = new Map();
+const API = window.APIService;
+const Modal = window.ModalService;
 
 if (menuBtn && mobileMenu) {
   menuBtn.addEventListener("click", () => {
@@ -20,8 +22,7 @@ if (menuBtn && mobileMenu) {
 if (cartBtn) {
   cartBtn.addEventListener("click", () => {
     if (cartModal) {
-      cartModal.classList.remove("hidden");
-      cartModal.classList.add("flex");
+      if (Modal) Modal.open(cartModal);
       return;
     }
 
@@ -29,22 +30,12 @@ if (cartBtn) {
   });
 }
 
-if (closeCartModalBtn && cartModal) {
-  closeCartModalBtn.addEventListener("click", () => {
-    cartModal.classList.add("hidden");
-    cartModal.classList.remove("flex");
-  });
-
-  cartModal.addEventListener("click", (e) => {
-    if (e.target !== cartModal) return;
-    cartModal.classList.add("hidden");
-    cartModal.classList.remove("flex");
-  });
+if (Modal) {
+  Modal.bindClose({ modalEl: cartModal, closeBtnEl: closeCartModalBtn });
 }
 
 if (cartModal && window.location.hash === "#open-cart") {
-  cartModal.classList.remove("hidden");
-  cartModal.classList.add("flex");
+  if (Modal) Modal.open(cartModal);
 }
 
 async function fetchHomeTrendingProducts() {
@@ -53,10 +44,9 @@ async function fetchHomeTrendingProducts() {
   try {
     if (trendingLoading) trendingLoading.classList.remove("hidden");
 
-    const res = await fetch("https://fakestoreapi.com/products?limit=3");
-    if (!res.ok) throw new Error(`Trending fetch failed: ${res.status}`);
-
-    const products = await res.json();
+    const products = API
+      ? await API.getTrendingProducts(3)
+      : await (await fetch("https://fakestoreapi.com/products?limit=3")).json();
     renderTrendingProducts(products);
   } catch (error) {
     console.error(error);
@@ -114,25 +104,11 @@ function renderTrendingProducts(products) {
 function openHomeProductModal(product) {
   if (!homeProductModal || !homeModalContent || !product) return;
 
-  homeModalContent.innerHTML = `
-    <img src="${product.image}" class="h-60 mx-auto object-contain mb-4" />
-    <h2 class="text-xl font-bold mb-2">${product.title}</h2>
-    <p class="text-gray-600 mb-4 text-sm">${product.description}</p>
-    <div class="flex justify-between items-center mb-4">
-      <span class="text-lg font-bold">$${product.price}</span>
-      <span class="text-yellow-500">&#9733; ${product.rating?.rate ?? "N/A"}</span>
-    </div>
-    <button class="add-cart-btn w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
-      data-id="${product.id}"
-      data-title="${String(product.title).replace(/"/g, "&quot;")}"
-      data-price="${product.price}"
-      data-image="${product.image}">
-      Add to Cart
-    </button>
-  `;
-
-  homeProductModal.classList.remove("hidden");
-  homeProductModal.classList.add("flex");
+  if (Modal) {
+    Modal.renderProductDetails(homeModalContent, product, "home-modal-add-to-cart");
+    Modal.open(homeProductModal);
+    return;
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -158,17 +134,8 @@ document.addEventListener("click", (e) => {
   }
 });
 
-if (homeCloseModalBtn && homeProductModal) {
-  homeCloseModalBtn.addEventListener("click", () => {
-    homeProductModal.classList.add("hidden");
-    homeProductModal.classList.remove("flex");
-  });
-
-  homeProductModal.addEventListener("click", (e) => {
-    if (e.target !== homeProductModal) return;
-    homeProductModal.classList.add("hidden");
-    homeProductModal.classList.remove("flex");
-  });
+if (Modal) {
+  Modal.bindClose({ modalEl: homeProductModal, closeBtnEl: homeCloseModalBtn });
 }
 
 fetchHomeTrendingProducts();

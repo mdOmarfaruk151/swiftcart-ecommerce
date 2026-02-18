@@ -7,10 +7,15 @@ const loading = document.getElementById("loading");
 
 const BASE_URL = "https://fakestoreapi.com/products";
 const productCache = new Map();
+const apiService = window.APIService;
+const modalService = window.ModalService;
+const PRODUCT_CACHE_KEY = "swiftcart_products_cache";
 
-async function fetchJson(url) {
+async function fetchJsonFallback(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Request failed (${res.status}): ${url}`);
+  if (!res.ok) {
+    throw new Error(`Request failed (${res.status}): ${url}`);
+  }
   return res.json();
 }
 
@@ -22,13 +27,46 @@ function hideLoading() {
   loading.classList.add("hidden");
 }
 
+function showProductMessage(message) {
+  productContainer.innerHTML = `
+    <div class="col-span-full text-center text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
+      ${message}
+    </div>
+  `;
+}
+
+function saveProductsCache(products) {
+  localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(products));
+}
+
+function getProductsCache() {
+  try {
+    const raw = localStorage.getItem(PRODUCT_CACHE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Failed to read product cache:", error);
+    return [];
+  }
+}
+
 async function fetchAllProducts() {
   try {
     showLoading();
-    const data = await fetchJson(BASE_URL);
+    const data = apiService
+      ? await apiService.getAllProducts()
+      : await fetchJsonFallback(BASE_URL);
+    if (!Array.isArray(data)) throw new Error("Invalid products response");
+    saveProductsCache(data);
     displayProducts(data);
   } catch (error) {
     console.error(error);
+    const cached = getProductsCache();
+    if (cached.length > 0) {
+      displayProducts(cached);
+    } else {
+      showProductMessage("Failed to load products. Please check your internet and refresh.");
+    }
   } finally {
     hideLoading();
   }
@@ -37,17 +75,24 @@ async function fetchAllProducts() {
 async function fetchByCategory(category) {
   try {
     showLoading();
-    const encodedCategory = encodeURIComponent(category);
-    const data = await fetchJson(`${BASE_URL}/category/${encodedCategory}`);
+    const data = apiService
+      ? await apiService.getProductsByCategory(category)
+      : await fetchJsonFallback(`${BASE_URL}/category/${encodeURIComponent(category)}`);
+    if (!Array.isArray(data)) throw new Error("Invalid category response");
     displayProducts(data);
   } catch (error) {
     console.error(error);
+    showProductMessage("Failed to load this category. Try again.");
   } finally {
     hideLoading();
   }
 }
 
 function displayProducts(products) {
+  if (!Array.isArray(products) || products.length === 0) {
+    showProductMessage("No products found.");
+    return;
+  }
   productContainer.innerHTML = "";
 
   products.forEach((product) => {
@@ -97,7 +142,9 @@ productContainer.addEventListener("click", (e) => {
 async function fetchSingleProduct(id) {
   try {
     showLoading();
-    const product = await fetchJson(`${BASE_URL}/${id}`);
+    const product = apiService
+      ? await apiService.getProductById(id)
+      : await fetchJsonFallback(`${BASE_URL}/${id}`);
     showModal(product);
   } catch (error) {
     console.error(error);
@@ -107,34 +154,18 @@ async function fetchSingleProduct(id) {
 }
 
 function showModal(product) {
+  if (!product) return;
   productCache.set(Number(product.id), product);
 
-  modalContent.innerHTML = `
-    <img src="${product.image}" class="h-60 mx-auto object-contain mb-4" />
-    <h2 class="text-xl font-bold mb-2">${product.title}</h2>
-    <p class="text-gray-600 mb-4 text-sm">${product.description}</p>
-    <div class="flex justify-between items-center mb-4">
-      <span class="text-lg font-bold">$${product.price}</span>
-      <span class="text-yellow-500">&#9733; ${product.rating?.rate ?? "N/A"}</span>
-    </div>
-    <button id="modal-add-to-cart" data-id="${product.id}" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
-      Add to Cart
-    </button>
-  `;
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
+  if (modalService) {
+    modalService.renderProductDetails(modalContent, product, "modal-add-to-cart");
+    modalService.open(modal);
+  }
 }
 
-closeModalBtn.addEventListener("click", () => {
-  modal.classList.add("hidden");
-  modal.classList.remove("flex");
-});
-
-modal.addEventListener("click", (e) => {
-  if (e.target !== modal) return;
-  modal.classList.add("hidden");
-  modal.classList.remove("flex");
-});
+if (modalService) {
+  modalService.bindClose({ modalEl: modal, closeBtnEl: closeModalBtn });
+}
 
 modalContent.addEventListener("click", (e) => {
   const addBtn = e.target.closest("#modal-add-to-cart");
@@ -150,7 +181,9 @@ modalContent.addEventListener("click", (e) => {
 
 async function loadCategories() {
   try {
-    const categories = await fetchJson(`${BASE_URL}/categories`);
+    const categories = apiService
+      ? await apiService.getCategories()
+      : await fetchJsonFallback(`${BASE_URL}/categories`);
     createCategoryButton("All", true);
     categories.forEach((category) => createCategoryButton(category));
   } catch (error) {

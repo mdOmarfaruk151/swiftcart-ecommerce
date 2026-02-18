@@ -1,10 +1,18 @@
+const modal = document.getElementById("product-modal");
+const modalContent = document.getElementById("modal-content");
+const closeModalBtn = document.getElementById("close-modal");
 const productContainer = document.getElementById("product-container");
 const categoryContainer = document.getElementById("category-container");
 const loading = document.getElementById("loading");
 
 const BASE_URL = "https://fakestoreapi.com/products";
 
-// ================= LOADING =================
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Request failed (${res.status}): ${url}`);
+  return res.json();
+}
+
 function showLoading() {
   loading.classList.remove("hidden");
 }
@@ -13,69 +21,47 @@ function hideLoading() {
   loading.classList.add("hidden");
 }
 
-// ================= FETCH ALL PRODUCTS =================
 async function fetchAllProducts() {
   try {
     showLoading();
-
-    const res = await fetch(BASE_URL);
-    const data = await res.json();
-
+    const data = await fetchJson(BASE_URL);
     displayProducts(data);
-    hideLoading();
-
   } catch (error) {
     console.error(error);
+  } finally {
+    hideLoading();
   }
 }
 
-// ================= FETCH BY CATEGORY =================
 async function fetchByCategory(category) {
   try {
     showLoading();
-
-    const res = await fetch(`${BASE_URL}/category/${category}`);
-    const data = await res.json();
-
+    const encodedCategory = encodeURIComponent(category);
+    const data = await fetchJson(`${BASE_URL}/category/${encodedCategory}`);
     displayProducts(data);
-    hideLoading();
-
   } catch (error) {
     console.error(error);
+  } finally {
+    hideLoading();
   }
 }
 
-// ================= DISPLAY PRODUCTS =================
 function displayProducts(products) {
   productContainer.innerHTML = "";
 
-  products.forEach(product => {
+  products.forEach((product) => {
     const card = document.createElement("div");
-
-    card.className =
-      "bg-white rounded-xl shadow hover:shadow-lg transition p-4";
-
+    card.className = "bg-white rounded-xl shadow hover:shadow-lg transition p-4";
     card.innerHTML = `
-      <img src="${product.image}"
-           class="h-52 mx-auto object-contain mb-4" />
-
-      <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">
-        ${product.category}
-      </span>
-
-      <h3 class="font-semibold mt-3 truncate">
-        ${product.title}
-      </h3>
-
+      <img src="${product.image}" class="h-52 mx-auto object-contain mb-4" />
+      <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">${product.category}</span>
+      <h3 class="font-semibold mt-3 truncate">${product.title}</h3>
       <div class="flex justify-between items-center mt-2">
         <span class="font-bold">$${product.price}</span>
-        <span class="text-yellow-500 text-sm">
-          ★ ${product.rating.rate}
-        </span>
+        <span class="text-yellow-500 text-sm">&#9733; ${product.rating?.rate ?? "N/A"}</span>
       </div>
-
       <div class="flex gap-2 mt-4">
-        <button class="flex-1 border border-gray-300 py-2 rounded hover:bg-gray-200">
+        <button class="details-btn flex-1 border border-gray-300 py-2 rounded hover:bg-gray-200" data-id="${product.id}">
           Details
         </button>
         <button class="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
@@ -83,66 +69,87 @@ function displayProducts(products) {
         </button>
       </div>
     `;
-
     productContainer.appendChild(card);
   });
 }
 
-// ================= LOAD CATEGORIES =================
-async function loadCategories() {
+productContainer.addEventListener("click", (e) => {
+  const detailsBtn = e.target.closest(".details-btn");
+  if (!detailsBtn) return;
+  const id = detailsBtn.getAttribute("data-id");
+  if (id) fetchSingleProduct(id);
+});
+
+async function fetchSingleProduct(id) {
   try {
-    const res = await fetch(`${BASE_URL}/categories`);
-    const categories = await res.json();
-
-    // Add "All" button first
-    createCategoryButton("All", true);
-
-    categories.forEach(category => {
-      createCategoryButton(category);
-    });
-
+    const product = await fetchJson(`${BASE_URL}/${id}`);
+    showModal(product);
   } catch (error) {
     console.error(error);
   }
 }
 
-// ================= CREATE CATEGORY BUTTON =================
+function showModal(product) {
+  modalContent.innerHTML = `
+    <img src="${product.image}" class="h-60 mx-auto object-contain mb-4" />
+    <h2 class="text-xl font-bold mb-2">${product.title}</h2>
+    <p class="text-gray-600 mb-4 text-sm">${product.description}</p>
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-lg font-bold">$${product.price}</span>
+      <span class="text-yellow-500">&#9733; ${product.rating?.rate ?? "N/A"}</span>
+    </div>
+    <button class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+      Add to Cart
+    </button>
+  `;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+closeModalBtn.addEventListener("click", () => {
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+});
+
+modal.addEventListener("click", (e) => {
+  if (e.target !== modal) return;
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+});
+
+async function loadCategories() {
+  try {
+    const categories = await fetchJson(`${BASE_URL}/categories`);
+    createCategoryButton("All", true);
+    categories.forEach((category) => createCategoryButton(category));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function createCategoryButton(category, isActive = false) {
   const button = document.createElement("button");
-
   button.textContent = category;
-
   button.className = `
-    px-4 py-2 rounded-full border 
-    ${isActive ? 
-      "bg-indigo-600 text-white border-indigo-600" : 
-      "bg-white text-gray-700 border-gray-300 hover:bg-indigo-50"}
+    px-4 py-2 rounded-full border
+    ${isActive ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-gray-700 border-gray-300 hover:bg-indigo-50"}
   `;
 
   button.addEventListener("click", () => {
+    document.querySelectorAll("#category-container button").forEach((btn) => {
+      btn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600");
+      btn.classList.add("bg-white", "text-gray-700", "border-gray-300");
+    });
 
-    // Remove active from all buttons
-    document.querySelectorAll("#category-container button")
-      .forEach(btn => {
-        btn.classList.remove("bg-indigo-600", "text-white", "border-indigo-600");
-        btn.classList.add("bg-white", "text-gray-700", "border-gray-300");
-      });
-
-    // Add active to clicked
     button.classList.remove("bg-white", "text-gray-700", "border-gray-300");
     button.classList.add("bg-indigo-600", "text-white", "border-indigo-600");
 
-    // Fetch products
-    if (category === "All") {
-      fetchAllProducts();
-    } else {
-      fetchByCategory(category);
-    }
+    if (category === "All") fetchAllProducts();
+    else fetchByCategory(category);
   });
 
   categoryContainer.appendChild(button);
 }
 
-// ================= INIT =================
 loadCategories();
 fetchAllProducts();
